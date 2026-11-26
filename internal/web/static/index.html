@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>牧区合作社断电恢复编排器</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>牧区合作社 · 断电恢复服务编排器</h1>
+      <p class="subtitle">机器、服务、负载、发电机、UPS、收购终端与人工核对均为确定性模拟；固定种子可复现。</p>
+    </div>
+    <div class="controls">
+      <label>场景 <input id="variant" type="number" min="0" max="63" value="0" /></label>
+      <label>种子基数 <input id="seed" type="number" value="20261127" /></label>
+      <button id="loadBtn" class="primary">重新模拟</button>
+      <button id="acceptBtn">运行 64 组验收</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="kpis" class="kpi-grid"></section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>数据库 / 缓存压力曲线</h2>
+          <div class="legend">
+            <span><i class="dot db"></i>数据库压力</span>
+            <span><i class="dot cache"></i>缓存压力</span>
+            <span><i class="dot ups"></i>UPS 电量</span>
+            <span><i class="line limit"></i>硬上限 90%</span>
+          </div>
+        </div>
+        <div id="pressureChart" class="chart-wrap"></div>
+        <div id="powerReadout" class="power-readout"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>恢复时刻推演</h2></div>
+        <div class="scrub-box">
+          <input id="scrub" type="range" min="0" max="3600" value="0" step="5" />
+          <div class="scrub-meta">
+            <strong id="clock">T+00:00</strong>
+            <span id="scrubHint"></span>
+          </div>
+        </div>
+        <div id="momentStats" class="moment-stats"></div>
+        <h3>当前卡住 / 等待中的服务</h3>
+        <div id="waitList" class="wait-list"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head timeline-head">
+        <h2>恢复时间轴：开机 → 启动 → 真就绪 → 预热/核对 → 接流量</h2>
+        <div class="timeline-controls">
+          <input id="filterText" type="search" placeholder="筛选机器或服务…" />
+          <label><input id="onlyProblems" type="checkbox" /> 只看故障/迁移/异常</label>
+          <label><input id="onlyCritical" type="checkbox" /> 只看关键链路</label>
+        </div>
+      </div>
+      <div id="timelineLegend" class="legend timeline-legend">
+        <span><i class="seg boot"></i>机器引导</span>
+        <span><i class="seg starting"></i>服务启动/探测</span>
+        <span><i class="seg ready"></i>已就绪/预热/核对</span>
+        <span><i class="seg traffic"></i>接流量</span>
+        <span><i class="marker fail">◆</i>失败/硬件故障</span>
+        <span><i class="marker migrate">●</i>迁移/校验</span>
+      </div>
+      <div id="timeline" class="timeline"></div>
+    </section>
+
+    <section class="grid-two bottom-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>停电前收购单核对</h2></div>
+        <div id="reconcileSummary" class="reconcile-summary"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>单号</th><th>收购点</th><th>品类</th><th>差异/原因</th><th>状态</th></tr></thead>
+            <tbody id="orderRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>关键事件流</h2></div>
+        <div id="eventLog" class="event-log"></div>
+      </div>
+    </section>
+
+    <section id="acceptancePanel" class="panel acceptance-panel" hidden>
+      <div class="panel-head">
+        <h2>固定种子验收结果</h2>
+        <div id="acceptSummary" class="accept-summary"></div>
+      </div>
+      <div class="table-wrap acceptance-table-wrap">
+        <table>
+          <thead><tr>
+            <th>场景</th><th>规模</th><th>终端</th><th>恢复(s)</th><th>事件</th><th>DB峰值</th><th>Cache峰值</th>
+            <th>参照时间线</th><th>依赖</th><th>压力</th><th>预算</th><th>差异</th>
+          </tr></thead>
+          <tbody id="acceptRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="tooltip" class="tooltip" hidden></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
